@@ -8,6 +8,26 @@ on:
       - "releases/*"
 
 jobs:
+  build-and-test:
+    name: Build and Test
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Setup Node.js
+        uses: actions/setup-node@v4
+        with:
+          node-version: '20'
+          cache: 'npm'
+
+      - name: Install dependencies
+        run: npm ci
+
+      - name: Check dist is up to date
+        run: |
+          npm run prepare
+          git diff --exit-code dist/
+
   test-actions-delete-latest-n:
     name: Test action delete latest N packages
     runs-on: ubuntu-latest
@@ -16,17 +36,17 @@ jobs:
       packages: write
       contents: read
     steps:
-      - uses: actions/checkout@v2
+      - uses: actions/checkout@v4
 
       - name: Login to GitHub Container Registry
-        uses: docker/login-action@v1
+        uses: docker/login-action@v3
         with:
           registry: ghcr.io
           username: ${{ github.actor }}
           password: ${{ secrets.GITHUB_TOKEN }}
 
       - name: Build and Push Dummy Image - 0
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
@@ -37,7 +57,7 @@ jobs:
             ghcr.io/${{ github.repository_owner }}/ghcr-delete-image-dummy:testtag-1
             ghcr.io/${{ github.repository_owner }}/ghcr-delete-image-dummy:dummytag-1
       - name: Build and Push Dummy Image - 1
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
@@ -47,7 +67,7 @@ jobs:
           tags: |
             ghcr.io/${{ github.repository_owner }}/ghcr-delete-image-dummy:testtag-2
       - name: Build and Push Dummy Image - 2
-        uses: docker/build-push-action@v2
+        uses: docker/build-push-action@v6
         with:
           context: .
           push: true
