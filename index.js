@@ -6,11 +6,12 @@ const actions = require("./actions");
 async function run() {
   try {
     const config = utils.getConfig();
+    core.setSecret(config.token);
     const octokit = github.getOctokit(config.token, {
       log: {
-        debug: () => core.info,
-        info: () => core.info,
-        warn: core.info,
+        debug: core.debug,
+        info: core.info,
+        warn: core.warning,
         error: core.error
       },
     });

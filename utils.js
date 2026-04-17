@@ -25,23 +25,23 @@ let getConfig = function () {
   if (definedOptionsCount == 0) {
     throw new Error("no any required options defined");
   }
-  // else if (definedOptionsCount > 1) {
-  //   throw new Error("too many selectors defined, use only one");
-  // }
-
   if (config.untaggedKeepLatest) {
-    if (
-      isNaN((config.untaggedKeepLatest = parseInt(config.untaggedKeepLatest)))
-    ) {
-      throw new Error("untagged-keep-latest is not number");
+    config.untaggedKeepLatest = parseInt(config.untaggedKeepLatest);
+    if (isNaN(config.untaggedKeepLatest)) {
+      throw new Error("untagged-keep-latest is not a number");
+    }
+    if (config.untaggedKeepLatest < 1) {
+      throw new Error("untagged-keep-latest must be a positive integer");
     }
   }
 
   if (config.taggedKeepLatest) {
-    if (
-      isNaN((config.taggedKeepLatest = parseInt(config.taggedKeepLatest)))
-    ) {
-      throw new Error("tagged-keep-latest is not number");
+    config.taggedKeepLatest = parseInt(config.taggedKeepLatest);
+    if (isNaN(config.taggedKeepLatest)) {
+      throw new Error("tagged-keep-latest is not a number");
+    }
+    if (config.taggedKeepLatest < 1) {
+      throw new Error("tagged-keep-latest must be a positive integer");
     }
     if (!config.tagRegex)
       throw new Error("regex must be provided when tagged-keep-latest set");
@@ -129,6 +129,19 @@ let deletePackageVersion = async (octokit, owner, name, versionId) => {
   });
 };
 
+const MAX_REGEX_LENGTH = 256;
+
+function safeRegex(pattern) {
+  if (pattern.length > MAX_REGEX_LENGTH) {
+    throw new Error(`tag-regex exceeds maximum length of ${MAX_REGEX_LENGTH} characters`);
+  }
+  try {
+    return new RegExp(pattern);
+  } catch (e) {
+    throw new Error(`invalid tag-regex '${pattern}': ${e.message}`);
+  }
+}
+
 function sleep(ms) {
   return new Promise((resolve) => {
     setTimeout(resolve, ms);
@@ -139,5 +152,6 @@ module.exports = {
   getConfig,
   deletePackageVersion,
   findPackageVersionsTagRegexMatchOrderGreaterThan,
+  safeRegex,
   sleep,
 };

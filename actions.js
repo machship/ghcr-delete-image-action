@@ -11,7 +11,7 @@ async function deleteTagRegexMatchOrderGreaterThan(config, octokit) {
     config.name,
     config.taggedKeepLatest,
     config.untaggedKeepLatest,
-    new RegExp(config.tagRegex)
+    utils.safeRegex(config.tagRegex)
   );
 
   core.startGroup(`🗑 delete ${pkgs.length} packages`);
