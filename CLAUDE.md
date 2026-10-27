@@ -4,15 +4,15 @@ This file provides guidance to Claude Code (claude.ai/code) when working with co
 
 ## Project Overview
 
-GitHub Action that deletes images from GitHub Container Registry (GHCR) by tag, untagged cleanup, or tag regex matching. Runs as a Node.js 20 action using `@actions/core` and `@actions/github` (Octokit).
+GitHub Action that deletes images from GitHub Container Registry (GHCR) by tag, untagged cleanup, or tag regex matching. Runs as a Node.js 24 action using `@actions/core` and `@actions/github` (Octokit).
 
 ## Commands
 
 - **Build (bundle for distribution):** `npm run prepare` — uses `@vercel/ncc` to bundle `index.js` into `dist/`
-- **Lint:** `npm run lint`
-- **Test:** `npm test` (Jest). Integration tests require `INTEGRATION_TEST_TOKEN` env var with a GitHub PAT.
-- **All checks:** `npm run all` (lint + prepare + test)
-- **Release:** `npm run release` (uses release-it, tags as `v${version}`)
+- **Test:** `npm test` (Node's built-in `node --test` runner)
+- **All checks:** `npm run all` (prepare + test)
+
+Consumers (`machship/action-workflow-templates`) pin this action by commit SHA, so there is no release/tag tooling. Keep dev dependencies to `@vercel/ncc` only.
 
 **Important:** After changing source files, run `npm run prepare` and commit the updated `dist/` directory. CI checks that `dist/` is in sync with source.
 
@@ -28,5 +28,6 @@ Action inputs are defined in `action.yml`. The selectors (`tag`, `untagged-keep-
 
 ## Testing
 
-- `utils.test.js` — Unit tests for `getConfig` (env-based, no mocks needed) and integration tests for API functions (require real GitHub token).
-- CI workflow (`.github/workflows/ci.yml`) also does an end-to-end test: pushes dummy images to GHCR then runs the action against them.
+- `utils.test.js` — Unit tests for `getConfig` (env-based, no mocks needed).
+- CI workflow (`.github/workflows/ci.yml`) also does an end-to-end test: pushes dummy images to GHCR then runs the action against them using `GITHUB_TOKEN` (the dummy package is linked to this repo).
+
