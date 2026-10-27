@@ -30,3 +30,7 @@ Action inputs are defined in `action.yml`. The selectors (`tag`, `untagged-keep-
 
 - `utils.test.js` — Unit tests for `getConfig` (env-based, no mocks needed) and integration tests for API functions (require real GitHub token).
 - CI workflow (`.github/workflows/ci.yml`) also does an end-to-end test: pushes dummy images to GHCR then runs the action against them.
+
+## Dependency overrides
+
+`package.json` `overrides` (`lodash`, `tmp`, `@octokit/rest`) exist only because `release-it@17` pins vulnerable transitives (exact `lodash 4.17.21`, `@octokit/rest 20.1.1`, and `tmp 0.0.x` via `inquirer` -> `external-editor`). They are dev-only and not bundled into `dist/`. Remove them when `release-it` is bumped to 19+.
